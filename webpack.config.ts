@@ -1,6 +1,7 @@
 import HtmlInlineScriptWebpackPlugin from 'html-inline-script-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import { globSync } from 'glob';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -45,9 +46,11 @@ function common_path(lhs: string, rhs: string) {
 }
 
 function glob_script_files() {
-  const files: string[] = fs
-    .globSync(`src/**/index.{ts,js}`)
-    .filter(file => process.env.CI !== 'true' || !fs.readFileSync(path.join(__dirname, file)).includes('@no-ci'));
+  const files = globSync('src/**/index.{ts,js}')
+    .filter((file: string) =>
+      process.env.CI !== 'true' ||
+      !fs.readFileSync(path.join(__dirname, file), 'utf8').includes('@no-ci')
+    );
 
   const results: string[] = [];
   const handle = (file: string) => {
